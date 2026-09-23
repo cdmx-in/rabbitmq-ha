@@ -7,6 +7,30 @@ entries:
       catalog.cattle.io/release-name: rmq
     apiVersion: v2
     appVersion: "4.3"
+    created: "2026-09-23T07:15:10.633096094Z"
+    description: HA RabbitMQ (3 brokers, quorum queues) on the official RabbitMQ Cluster
+      Operator. Prerequisites - cert-manager and the RabbitMQ Cluster Operator.
+    digest: bb415b4eb6ac47bc746afafd52d1a97cf29025bc22e52d41d2be93fbf3ff4438
+    home: https://github.com/cdmx-in/rabbitmq-ha
+    keywords:
+    - rabbitmq
+    - messaging
+    - amqp
+    - ha
+    - quorum
+    name: rabbitmq-ha
+    sources:
+    - https://github.com/rabbitmq/cluster-operator
+    type: application
+    urls:
+    - https://github.com/cdmx-in/rabbitmq-ha/releases/download/rabbitmq-ha-0.1.2/rabbitmq-ha-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      catalog.cattle.io/display-name: RabbitMQ HA
+      catalog.cattle.io/namespace: rabbitmq
+      catalog.cattle.io/release-name: rmq
+    apiVersion: v2
+    appVersion: "4.3"
     created: "2026-09-23T06:50:47.609279111Z"
     description: HA RabbitMQ (3 brokers, quorum queues) on the official RabbitMQ Cluster
       Operator. Prerequisites - cert-manager and the RabbitMQ Cluster Operator.
@@ -49,4 +73,4 @@ entries:
     urls:
     - https://github.com/cdmx-in/rabbitmq-ha/releases/download/rabbitmq-ha-0.1.0/rabbitmq-ha-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-23T06:50:47.609289576Z"
+generated: "2026-09-23T07:15:10.633103729Z"
