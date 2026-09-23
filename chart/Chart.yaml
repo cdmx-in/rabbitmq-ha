@@ -1,6 +1,0 @@
-apiVersion: v2
-name: rabbitmq-ha
-description: HA RabbitMQ (3-node, quorum queues) on the official RabbitMQ Cluster Operator
-type: application
-version: 0.1.0
-appVersion: "4.3"

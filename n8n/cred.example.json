@@ -1,1 +1,0 @@
-[{"id": "rmqHaCred0001", "name": "RabbitMQ HA (kind)", "type": "rabbitmq", "data": {"hostname": "host.docker.internal", "port": 5673, "username": "default_user_Uf9BmSRBL0IFo6BBjg6", "password": "<kubectl -n rabbitmq get secret rmq-default-user -o jsonpath={.data.password} | base64 -d>", "vhost": "/", "ssl": false}}]

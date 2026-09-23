@@ -1,0 +1,45 @@
+# Rancher Apps & Marketplace form
+questions:
+- variable: replicas
+  label: Brokers
+  description: Odd number >= 3 (quorum queues need a majority)
+  type: int
+  default: 3
+  group: Cluster
+- variable: image
+  label: RabbitMQ image
+  type: string
+  default: rabbitmq:4.3-management
+  group: Cluster
+- variable: requireAntiAffinity
+  label: Require one broker per node
+  type: boolean
+  default: true
+  group: Cluster
+- variable: persistence.storageClassName
+  label: Storage class
+  description: Leave empty for the cluster default
+  type: storageclass
+  default: ""
+  group: Storage
+- variable: persistence.storage
+  label: Volume size per broker
+  type: string
+  default: 10Gi
+  group: Storage
+- variable: resources.requests.cpu
+  label: CPU request
+  type: string
+  default: 500m
+  group: Resources
+- variable: resources.requests.memory
+  label: Memory request (limit is set equal)
+  type: string
+  default: 1Gi
+  group: Resources
+- variable: service.type
+  label: Service type
+  type: enum
+  options: [ClusterIP, NodePort, LoadBalancer]
+  default: ClusterIP
+  group: Networking
