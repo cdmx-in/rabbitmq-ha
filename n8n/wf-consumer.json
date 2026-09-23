@@ -1,0 +1,20 @@
+{
+  "id": "rmqConsumer0001",
+  "name": "RMQ HA - consumer (jobs -> process -> done queue)",
+  "active": true,
+  "settings": {"executionOrder": "v1"},
+  "nodes": [
+    {"id":"trg","name":"RabbitMQ Trigger","type":"n8n-nodes-base.rabbitmqTrigger","typeVersion":1,"position":[0,0],
+     "credentials":{"rabbitmq":{"id":"rmqHaCred0001","name":"RabbitMQ HA (kind)"}},
+     "parameters":{"queue":"jobs","options":{"assertQueue":true,"acknowledge":"executionFinishesSuccessfully","jsonParseBody":true,"onlyContent":true,"parallelMessages":20,"durable":true}}},
+    {"id":"proc","name":"Process job","type":"n8n-nodes-base.code","typeVersion":2,"position":[220,0],
+     "parameters":{"jsCode":"const j = $input.first().json;\nreturn [{ json: { ...j, processedAt: new Date().toISOString(), result: 'ok' } }];"}},
+    {"id":"done","name":"Publish to done","type":"n8n-nodes-base.rabbitmq","typeVersion":1.1,"position":[440,0],
+     "credentials":{"rabbitmq":{"id":"rmqHaCred0001","name":"RabbitMQ HA (kind)"}},
+     "parameters":{"mode":"queue","queue":"done","sendInputData":true,"options":{"durable":true,"assertQueue":true}}}
+  ],
+  "connections": {
+    "RabbitMQ Trigger":{"main":[[{"node":"Process job","type":"main","index":0}]]},
+    "Process job":{"main":[[{"node":"Publish to done","type":"main","index":0}]]}
+  }
+}

@@ -1,0 +1,51 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  image: {{ .Values.image }}
+  resources: {{- toYaml .Values.resources | nindent 4 }}
+  persistence:
+    {{- with .Values.persistence.storageClassName }}
+    storageClassName: {{ . }}
+    {{- end }}
+    storage: {{ .Values.persistence.storage }}
+  service:
+    type: {{ .Values.service.type }}
+  rabbitmq:
+    additionalConfig: |
+      {{- .Values.additionalConfig | nindent 6 }}
+  {{- if .Values.requireAntiAffinity }}
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: kubernetes.io/hostname
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: {{ .Release.Name }}
+  {{- end }}
+  override:
+    statefulSet:
+      spec:
+        template:
+          spec:
+            containers: []
+            topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: topology.kubernetes.io/zone
+              whenUnsatisfiable: ScheduleAnyway
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: {{ .Release.Name }}
+    {{- if eq .Values.service.type "NodePort" }}
+    service:
+      spec:
+        ports:
+        - name: amqp
+          port: 5672
+          nodePort: {{ .Values.service.amqpNodePort }}
+        - name: management
+          port: 15672
+          nodePort: {{ .Values.service.mgmtNodePort }}
+    {{- end }}

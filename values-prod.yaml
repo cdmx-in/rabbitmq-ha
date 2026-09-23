@@ -1,0 +1,17 @@
+# Example production overrides: helm upgrade --install rmq ./chart -n rabbitmq -f values-prod.yaml
+replicas: 3
+image: rabbitmq:4.3.6-management          # pin; bump deliberately
+resources:
+  requests: {cpu: "2", memory: 4Gi}
+  limits:   {cpu: "4", memory: 4Gi}
+persistence:
+  storageClassName: ""                     # set to your SSD class (gp3 / premium-ssd / etc.)
+  storage: 50Gi
+service:
+  type: ClusterIP                          # n8n in-cluster: amqp://rmq.rabbitmq.svc:5672
+additionalConfig: |
+  default_queue_type = quorum
+  cluster_partition_handling = pause_minority
+  disk_free_limit.absolute = 5GB
+  vm_memory_high_watermark.relative = 0.6
+  consumer_timeout = 1800000

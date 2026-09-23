@@ -1,0 +1,6 @@
+image: rabbitmq:4.3-management
+resources:
+  requests: {cpu: 100m, memory: 512Mi}
+  limits:   {cpu: "1",  memory: 512Mi}
+persistence: {storage: 1Gi}
+service: {type: NodePort, amqpNodePort: 30672, mgmtNodePort: 31672}

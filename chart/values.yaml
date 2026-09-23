@@ -1,0 +1,23 @@
+# Requires the RabbitMQ Cluster Operator (and cert-manager) installed in the cluster first.
+replicas: 3
+image: rabbitmq:4.3-management   # official image; pin a digest in prod
+# Always an odd number >=3 for quorum queues; pods spread across nodes via required anti-affinity.
+requireAntiAffinity: true
+resources:
+  requests: {cpu: 500m, memory: 1Gi}
+  limits:   {cpu: "1",  memory: 1Gi}   # memory limit == request so the OOM watermark is predictable
+persistence:
+  storageClassName: ""   # "" = cluster default; use a fast SSD class in prod
+  storage: 10Gi
+service:
+  type: ClusterIP        # kind/local: NodePort ; prod: ClusterIP (consumers in-cluster) or LoadBalancer
+  amqpNodePort: 30672
+  mgmtNodePort: 31672
+# rabbitmq.conf lines. default_queue_type=quorum makes every queue n8n declares replicated
+# without needing x-queue-type arguments on the client side.
+additionalConfig: |
+  default_queue_type = quorum
+  cluster_partition_handling = pause_minority
+  disk_free_limit.absolute = 2GB
+  vm_memory_high_watermark.relative = 0.6
+  consumer_timeout = 1800000

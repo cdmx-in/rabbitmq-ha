@@ -1,0 +1,10 @@
+# Lets node drains take down at most one broker at a time, keeping quorum (2 of 3).
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}

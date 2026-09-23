@@ -1,0 +1,5 @@
+.rmq-creds.env
+.n8n-apikey
+n8n-cookie.txt
+n8n/cred.json
+*.log
