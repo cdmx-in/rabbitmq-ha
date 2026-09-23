@@ -13,8 +13,8 @@ is maintained by the RabbitMQ team, tracks 4.3.x, and handles rolling upgrades a
 
 ## Install from Rancher
 
-1. Prerequisites (once per cluster): cert-manager (Rancher ships it: Apps → Charts → cert-manager) and the
-   RabbitMQ Cluster Operator. For the operator use Cluster → Import YAML with
+1. Prerequisites (once per cluster): cert-manager (often already present on Rancher-managed clusters;
+   otherwise install it from https://charts.jetstack.io) and the RabbitMQ Cluster Operator. For the operator use Cluster → Import YAML with
    `https://github.com/rabbitmq/cluster-operator/releases/download/v2.23.0/cluster-operator.yml`
    or `kubectl apply -f` that URL.
 2. Apps → Repositories → Create → Target: **http(s) URL** → `https://cdmx-in.github.io/rabbitmq-ha`
@@ -67,6 +67,11 @@ helm upgrade --install rmq ./charts/rabbitmq-ha -n rabbitmq --create-namespace -
 Failover test: publish continuously, then `kubectl -n rabbitmq delete pod <leader> --grace-period=0 --force`.
 Expected: leader re-elected in a few seconds, no publish failures, unacked messages redelivered
 (at-least-once, so consumers must be idempotent), pod rejoins the cluster.
+
+## Not yet tested
+
+- Node loss (only pod deletion was exercised), rolling image upgrades, and network partitions.
+- Rancher UI install itself; the repo index and `questions.yaml` follow Rancher's documented format.
 
 ## Notes for clients
 
