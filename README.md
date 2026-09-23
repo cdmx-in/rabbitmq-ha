@@ -55,23 +55,28 @@ Create a dedicated least-privilege user for applications instead of `default_use
 | `values-kind.yaml` | local rehearsal values (NodePort, small resources) |
 | `kind.yaml` | 4-node kind cluster for local testing |
 
-## Local rehearsal
+## Local rehearsal (k3d = k3s in Docker)
 
-```bash
-kind create cluster --config kind.yaml
-# install cert-manager + operator as above, then:
-helm upgrade --install rmq ./charts/rabbitmq-ha -n rabbitmq --create-namespace -f values-kind.yaml
-# AMQP localhost:5673, management UI http://localhost:15673
-```
+`tests/k3d-up.sh` creates a 1-server + 3-agent k3s cluster, installs cert-manager, the operator and this
+chart from the published repo, and exposes AMQP on localhost:5673 and the management UI on
+localhost:15673. `tests/failover.sh all` runs the scenarios below with an n8n instance publishing
+(4 x 500 jobs via webhook -> `jobs` queue) and consuming (RabbitMQ Trigger -> `done` queue).
+The script encodes this host's quirks (corporate TLS interception, WARP firewall subnet, full disk).
 
-Failover test: publish continuously, then `kubectl -n rabbitmq delete pod <leader> --grace-period=0 --force`.
-Expected: leader re-elected in a few seconds, no publish failures, unacked messages redelivered
-(at-least-once, so consumers must be idempotent), pod rejoins the cluster.
+Results, chart 0.1.3 on k3s v1.35.5, RabbitMQ 4.3.6, n8n 2.40.5:
 
-## Not yet tested
+| Scenario | Published | Delivered | Lost | Notes |
+|---|---|---|---|---|
+| Force-delete the `jobs` leader pod | 2000 | 2020 | 0 | leader re-elected in <5 s; 20 in-flight messages redelivered |
+| Stop the k3s node hosting the leader (`docker stop`), restart it 4 min later | 2000 | 2000 | 0 | one webhook call took >30 s (client timed out) but its 500 jobs were published once; node rejoined, 3/3 running |
+| Rolling image change via `helm upgrade` under load | 2000 | 2001 | 0 | operator rolled one pod at a time; 1 redelivery |
+| NetworkPolicy isolating one broker from its peers | 2000 | 2000 | 0 | inconclusive: management API never showed a node down, so the policy did not produce a real partition on k3s |
 
-- Node loss (only pod deletion was exercised), rolling image upgrades, and network partitions.
-- Rancher UI install itself; the repo index and `questions.yaml` follow Rancher's documented format.
+Finding worth acting on: n8n opens AMQP connections without a heartbeat. When a node died silently
+(node stop, not pod delete) one consumer execution hung on the dead TCP connection and its message
+stayed unacked until RabbitMQ's `consumer_timeout` (30 min here) closed the channel and redelivered it.
+Lower `consumer_timeout` to what your jobs actually need, and set an execution timeout on n8n workflows.
+Deliveries are at-least-once in every scenario: consumers must be idempotent on a job id.
 
 ## Notes for clients
 
