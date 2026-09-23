@@ -33,7 +33,17 @@ questions:
   default: 500m
   group: Resources
 - variable: resources.requests.memory
-  label: Memory request (limit is set equal)
+  label: Memory request
+  type: string
+  default: 1Gi
+  group: Resources
+- variable: resources.limits.cpu
+  label: CPU limit
+  type: string
+  default: "1"
+  group: Resources
+- variable: resources.limits.memory
+  label: Memory limit (set equal to the request)
   type: string
   default: 1Gi
   group: Resources
