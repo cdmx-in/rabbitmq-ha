@@ -30,6 +30,7 @@ spec:
       spec:
         template:
           spec:
+            containers: []   # required by PodSpec validation even though the operator fills it in
             topologySpreadConstraints:
             - maxSkew: 1
               topologyKey: topology.kubernetes.io/zone
